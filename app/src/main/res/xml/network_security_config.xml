@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <!-- 默认禁止明文 HTTP：避免书源/封面/媒体在链路上被同网段篡改。
+         个别书源若只能用 http，请自行在应用内按需处理，不在此全局放开。 -->
+    <base-config cleartextTrafficPermitted="false" />
+
+    <debug-overrides cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="user" />
+            <certificates src="system"/>
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

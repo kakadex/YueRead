@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--App-->
+    <string name="app_name">YueRead</string>
+    <string name="app_name_a">YueRead·A</string>
+    <string name="app_name_s" translatable="false">YueReadPlus</string>
+</resources>

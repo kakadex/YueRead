@@ -1,0 +1,73 @@
+package com.yueread.app.ui.widget.dialog
+
+import android.annotation.SuppressLint
+import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.yueread.app.R
+import com.yueread.app.base.BaseDialogFragment
+import com.yueread.app.databinding.DialogPhotoViewBinding
+import com.yueread.app.help.book.BookHelp
+import com.yueread.app.help.glide.ImageLoader
+import com.yueread.app.help.glide.OkHttpModelLoader
+import com.yueread.app.model.BookCover
+import com.yueread.app.model.ImageProvider
+import com.yueread.app.model.ReadBook
+import com.yueread.app.utils.setLayout
+import com.yueread.app.utils.viewbindingdelegate.viewBinding
+
+/**
+ * 显示图片
+ */
+class PhotoDialog() : BaseDialogFragment(R.layout.dialog_photo_view) {
+
+    constructor(src: String, sourceOrigin: String? = null, isBook: Boolean = false) : this() {
+        arguments = Bundle().apply {
+            putString("src", src)
+            putString("sourceOrigin", sourceOrigin)
+            putBoolean("isBook", isBook)
+        }
+    }
+
+    private val binding by viewBinding(DialogPhotoViewBinding::bind)
+
+    override fun onStart() {
+        super.onStart()
+        setLayout(1f, ViewGroup.LayoutParams.MATCH_PARENT)
+    }
+
+    @SuppressLint("CheckResult")
+    override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
+        val arguments = arguments ?: return
+        val src = arguments.getString("src") ?: return
+        ImageProvider.get(src)?.let {
+            binding.photoView.setImageBitmap(it)
+            return
+        }
+        val isBook = arguments.getBoolean("isBook")
+        val file = if (isBook) ReadBook.book?.let { book ->
+            BookHelp.getImage(book, src)
+        } else null
+        if (file?.exists() == true) {
+            ImageLoader.load(requireContext(), file)
+                .error(R.drawable.image_loading_error)
+                .dontTransform()
+                .downsample(DownsampleStrategy.NONE)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(binding.photoView)
+        } else {
+            ImageLoader.load(requireContext(), src).apply {
+                arguments.getString("sourceOrigin")?.let { sourceOrigin ->
+                    apply(RequestOptions().set(OkHttpModelLoader.sourceOriginOption, sourceOrigin))
+                }
+            }.error(if (isBook) BookCover.defaultDrawable else R.drawable.image_loading_error)
+                .dontTransform()
+                .downsample(DownsampleStrategy.NONE)
+                .into(binding.photoView)
+        }
+    }
+
+}

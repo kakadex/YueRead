@@ -1,0 +1,5 @@
+package com.yueread.app.constant
+
+enum class Theme {
+    Dark, Light, Auto, Transparent, EInk;
+}
